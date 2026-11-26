@@ -369,6 +369,7 @@ func (m *Manager) loop(ctx context.Context, id int64, p *proc) {
 				}
 			}
 		}
+		s.Inputs = EnabledInputs(s.Inputs)
 		if len(s.Inputs) == 0 && !s.DRM.Enabled {
 			m.setState(id, s.Name, p, Failed, "no source URL")
 			return
@@ -1127,4 +1128,18 @@ func (m *Manager) StopIdle(idle time.Duration) {
 			go m.Stop(s.ID)
 		}
 	}
+}
+
+// EnabledInputs drops sources disabled Xaccel-style with a numeric prefix
+// before the scheme (e.g. "1http://...") or a leading "#"/"!".
+func EnabledInputs(in []string) []string {
+	out := make([]string, 0, len(in))
+	for _, u := range in {
+		u = strings.TrimSpace(u)
+		if u == "" || u[0] == '#' || u[0] == '!' || (u[0] >= '0' && u[0] <= '9' && strings.Contains(u, "://")) {
+			continue
+		}
+		out = append(out, u)
+	}
+	return out
 }
