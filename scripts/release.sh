@@ -10,7 +10,7 @@ sed -i "s/Version = \".*\"/Version = \"$VER\"/" internal/version/version.go
 OUT=dist/pkg/mastergpu; mkdir -p $OUT
 CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -X gpupanel/internal/version.Build=$(git rev-parse --short HEAD)" -o $OUT/mastergpu ./cmd/mastergpu
 cp scripts/install.sh $OUT/install.sh
-[ -f $OUT/mediamtx ] || curl -fsSL "$BASE/mastergpu.zip" -o dist/old.zip && unzip -qo -j dist/old.zip mastergpu/mediamtx -d $OUT
+[ -f $OUT/mediamtx ] || { curl -fsSL "$BASE/mastergpu.zip" -o dist/old.zip && unzip -qo -j dist/old.zip mastergpu/mediamtx -d $OUT; }
 (cd dist/pkg && rm -f ../mastergpu.zip && zip -qr ../mastergpu.zip mastergpu)
 python3 - "$VER" "$NOTES" "$BASE" <<'PY'
 import hashlib,json,sys
